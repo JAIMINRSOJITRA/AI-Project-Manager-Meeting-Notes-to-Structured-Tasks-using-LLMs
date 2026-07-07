@@ -28,7 +28,7 @@ load_dotenv()
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
 # Default Groq model to use for extraction
-GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 # Ollama base URL (required when using Local LLM as provider)
 # Default: http://localhost:11434
