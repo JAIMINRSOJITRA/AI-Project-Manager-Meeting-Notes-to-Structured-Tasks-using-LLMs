@@ -25,6 +25,13 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+import sys
+import os
+
+# Ensure the root folder is added to Python's system path (fixes Streamlit Cloud ModuleNotFound errors)
+root_dir = os.path.dirname(os.path.abspath(__file__))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
 
 # --- Internal modules (in correct dependency order) ---
 from config import (
