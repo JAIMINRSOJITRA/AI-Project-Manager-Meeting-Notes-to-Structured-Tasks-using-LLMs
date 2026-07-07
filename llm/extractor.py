@@ -22,66 +22,68 @@
 #   MeetingOutput (validated Python object)
 # ============================================================
 
-import google.genai as genai
+import groq
 import ollama
 
 from llm.prompt import get_system_prompt, get_user_prompt
 from llm.parser import parse_llm_response, MeetingOutput
-from config import GEMINI_API_KEY, GEMINI_MODEL, OLLAMA_BASE_URL, OLLAMA_MODEL
+from config import GROQ_API_KEY, GROQ_MODEL, OLLAMA_BASE_URL, OLLAMA_MODEL
 
 
 # ============================================================
-# STEP 6C.1: Gemini Extraction Function
+# STEP 6C.1: Groq Extraction Function
 # ============================================================
-def call_gemini(meeting_notes: str, model: str = None) -> str:
+def call_groq(meeting_notes: str, model: str = None) -> str:
     """
-    STEP 6C.1: Send meeting notes to Google Gemini and get JSON.
+    STEP 6C.1: Send meeting notes to Groq Cloud and get JSON.
 
-    Uses the google-genai SDK to call Gemini with structured
-    output instructions. Returns the raw JSON string response.
+    Uses the groq SDK to call Groq with structured JSON mode.
+    Returns the raw JSON string response.
 
     Args:
         meeting_notes (str): Clean plain text from input processors.
-        model (str): Gemini model name (overrides config default).
+        model (str): Groq model name (overrides config default).
 
     Returns:
-        str: Raw JSON string from Gemini.
+        str: Raw JSON string from Groq.
 
     Raises:
         ValueError: If API key is missing or call fails.
     """
     # STEP 6C.1.1: Validate API key exists
-    if not GEMINI_API_KEY:
+    if not GROQ_API_KEY:
         raise ValueError(
-            "GEMINI_API_KEY is not set. "
+            "GROQ_API_KEY is not set. "
             "Please add it to your .env file or Streamlit secrets."
         )
 
-    # STEP 6C.1.2: Initialize Gemini client with the API key
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    # STEP 6C.1.2: Initialize Groq client with the API key
+    client = groq.Groq(api_key=GROQ_API_KEY)
 
     # STEP 6C.1.3: Select the model (use config default if not specified)
-    selected_model = model or GEMINI_MODEL
+    selected_model = model or GROQ_MODEL
 
-    # STEP 6C.1.4: Build the combined system + user prompt
-    # Gemini receives the system instructions and meeting notes together
+    # STEP 6C.1.4: Get system and user prompts
     system_prompt = get_system_prompt()
     user_prompt = get_user_prompt(meeting_notes)
-    full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
-    # STEP 6C.1.5: Call the Gemini API
+    # STEP 6C.1.5: Call the Groq API with JSON mode enabled
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=selected_model,
-            contents=full_prompt,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            response_format={"type": "json_object"}
         )
     except Exception as e:
-        raise ValueError(f"Gemini API call failed: {e}")
+        raise ValueError(f"Groq API call failed: {e}")
 
     # STEP 6C.1.6: Extract the text content from the response
-    raw_text = response.text
+    raw_text = response.choices[0].message.content
     if not raw_text or not raw_text.strip():
-        raise ValueError("Gemini returned an empty response.")
+        raise ValueError("Groq returned an empty response.")
 
     return raw_text.strip()
 
@@ -143,7 +145,7 @@ def call_ollama(meeting_notes: str, model: str = None) -> str:
 # ============================================================
 def extract_meeting_data(
     meeting_notes: str,
-    provider: str = "Gemini (Google)",
+    provider: str = "Groq Cloud",
     model: str = None
 ) -> MeetingOutput:
     """
@@ -155,7 +157,7 @@ def extract_meeting_data(
 
     Args:
         meeting_notes (str): Clean plain text from input processors.
-        provider (str): "Gemini (Google)" or "Local LLM (Ollama)".
+        provider (str): "Groq Cloud" or "Local LLM (Ollama)".
         model (str): Optional model name override.
 
     Returns:
@@ -172,14 +174,14 @@ def extract_meeting_data(
         )
 
     # STEP 6C.3.2: Route to the correct LLM provider
-    if provider == "Gemini (Google)":
-        raw_json = call_gemini(meeting_notes, model=model)
+    if provider == "Groq Cloud":
+        raw_json = call_groq(meeting_notes, model=model)
     elif provider == "Local LLM (Ollama)":
         raw_json = call_ollama(meeting_notes, model=model)
     else:
         raise ValueError(
             f"Unknown LLM provider: '{provider}'. "
-            "Choose 'Gemini (Google)' or 'Local LLM (Ollama)'."
+            "Choose 'Groq Cloud' or 'Local LLM (Ollama)'."
         )
 
     # STEP 6C.3.3: Parse and validate the raw JSON response

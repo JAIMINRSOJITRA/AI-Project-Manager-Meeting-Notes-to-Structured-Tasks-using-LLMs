@@ -37,7 +37,7 @@ if root_dir not in sys.path:
 from config import (
     APP_TITLE, APP_SUBTITLE, LLM_PROVIDERS,
     PRIORITY_OPTIONS, STATUS_OPTIONS, INPUT_SOURCES,
-    GEMINI_MODEL, OLLAMA_MODEL
+    GROQ_MODEL, OLLAMA_MODEL
 )
 from database.connection import init_db, get_db
 from database import crud
@@ -219,8 +219,8 @@ def init_session_state():
         "meeting_decisions": "",      # Decisions bullet text
         "tasks_df": pd.DataFrame(),   # Tasks as DataFrame for editor
         "extraction_done": False,     # Flag: has extraction been run?
-        "selected_provider": LLM_PROVIDERS[0],  # Default: Gemini
-        "selected_model": GEMINI_MODEL,          # Default model
+        "selected_provider": LLM_PROVIDERS[0],  # Default: Groq Cloud
+        "selected_model": GROQ_MODEL,          # Default model
         "notes_task_filter": "All",   # Task filter on the Process Notes tab
     }
     for key, value in defaults.items():
@@ -241,16 +241,16 @@ with st.sidebar:
         "🤖 LLM Provider",
         options=LLM_PROVIDERS,
         index=LLM_PROVIDERS.index(st.session_state.selected_provider),
-        help="Choose between Google Gemini or a local Ollama model"
+        help="Choose between Groq Cloud or a local Ollama model"
     )
 
     # --- STEP 8.5.2: Model Selection (changes based on provider) ---
-    if st.session_state.selected_provider == "Gemini (Google)":
+    if st.session_state.selected_provider == "Groq Cloud":
         st.session_state.selected_model = st.selectbox(
-            "🧠 Gemini Model",
-            options=["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"],
+            "🧠 Groq Model",
+            options=["llama3-70b-8192", "llama3-8b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"],
             index=0,
-            help="gemini-2.5-flash is recommended (fast + accurate)"
+            help="llama3-70b-8192 is recommended (highly accurate)"
         )
     else:
         st.session_state.selected_model = st.text_input(

@@ -24,13 +24,11 @@ load_dotenv()
 # LLM PROVIDER SETTINGS
 # ============================================================
 
-# Gemini API Key (required when using Gemini as LLM provider)
-GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+# Groq API Key (required when using Groq as LLM provider)
+GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
-# Default Gemini model to use for extraction
-# gemini-2.5-flash = fast, cost-effective (recommended)
-# gemini-2.5-pro   = slower, more reasoning power
-GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# Default Groq model to use for extraction
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
 
 # Ollama base URL (required when using Local LLM as provider)
 # Default: http://localhost:11434
@@ -58,7 +56,7 @@ APP_TITLE: str = "AI Project Manager"
 APP_SUBTITLE: str = "Transform Meeting Notes into Structured Tasks using LLMs"
 
 # List of available LLM providers in the sidebar selector
-LLM_PROVIDERS: list = ["Gemini (Google)", "Local LLM (Ollama)"]
+LLM_PROVIDERS: list = ["Groq Cloud", "Local LLM (Ollama)"]
 
 # Priority options for task dropdowns
 PRIORITY_OPTIONS: list = ["High", "Medium", "Low"]
