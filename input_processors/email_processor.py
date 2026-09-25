@@ -13,7 +13,6 @@
 #   Returns clean plain text for the LLM.
 # ============================================================
 
-import re
 
 
 def process_email(raw_email: str) -> str:
