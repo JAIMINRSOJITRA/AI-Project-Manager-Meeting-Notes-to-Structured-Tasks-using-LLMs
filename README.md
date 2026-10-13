@@ -19,6 +19,25 @@ It helps project managers, team leads, and students keep follow-ups from slippin
 * SQLite persistence with meeting history
 * 71-test Pytest suite
 
+## 🔄 Workflow
+
+From raw meeting notes to a tracked, exportable task list.
+
+```mermaid
+flowchart TD
+    IN(["Meeting notes: text, PDF, DOCX, email or Slack export"]) --> PR["Input processor<br/>converts the input to clean text"]
+    PR --> PM["Build the extraction prompt"]
+    PM --> LLM{"LLM provider"}
+    LLM -->|"Groq (cloud)"| EX["Model returns tasks as JSON"]
+    LLM -->|"Ollama (local)"| EX
+    EX --> PA["Parser validates the JSON<br/>and fills defaults for missing fields"]
+    PA --> TS["Task service saves the meeting and tasks"]
+    TS --> DB[("SQLite database")]
+    DB --> TB["Tasks tab: edit and filter"]
+    TB --> VZ["Visualize tab: Kanban board and Gantt timeline"]
+    TB --> EXP["Export tab: CSV and Markdown"]
+```
+
 ## 🛠️ Tech Stack
 
 * Language: Python
